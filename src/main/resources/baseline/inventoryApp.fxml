@@ -51,10 +51,10 @@
       </HBox>
       <MenuBar GridPane.rowIndex="2">
         <menus>
-          <Menu fx:id="fileButton" mnemonicParsing="false" text="File">
+          <Menu fx:id="fileButton" mnemonicParsing="false" onAction="#fileAction" text="File">
             <items>
-                  <MenuItem fx:id="saveButton" mnemonicParsing="false" text="Save" />
-              <MenuItem fx:id="loadButton" mnemonicParsing="false" text="Load" />
+                  <MenuItem fx:id="saveButton" mnemonicParsing="false" onAction="#saveAction" text="Save" />
+              <MenuItem fx:id="loadButton" mnemonicParsing="false" onAction="#loadAction" text="Load" />
             </items>
           </Menu>
           <Menu fx:id="helpButton" mnemonicParsing="false" text="Help">
@@ -66,9 +66,9 @@
       </MenuBar>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" GridPane.rowIndex="3">
          <children>
-            <Button fx:id="addButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="88.0" text="Add Item" />
-            <Button fx:id="deleteButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" text="Delete Item" />
-            <Button fx:id="clearButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="83.0" text="Clear List" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#addAction" prefHeight="26.0" prefWidth="88.0" text="Add Item" />
+            <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteAction" prefHeight="26.0" prefWidth="84.0" text="Delete Item" />
+            <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearAction" prefHeight="26.0" prefWidth="83.0" text="Clear List" />
          </children>
       </VBox>
    </children>
