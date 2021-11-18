@@ -82,12 +82,14 @@ public class fxmlController {
 
     @FXML
     void clearAction(ActionEvent event) {
+        //call clearlist();
 
     }
 
     @FXML
     void deleteAction(ActionEvent event) {
-
+        //item delete =getSelectedItem from table
+        //call itemman delete(Item delete)
     }
 
     @FXML
@@ -97,12 +99,19 @@ public class fxmlController {
 
     @FXML
     void loadAction(ActionEvent event) {
-
+        //new filechooser()
+        //set current directory for file chooser
+        //String path =getSelectedfile.getpath
+        //call loadFile(path)
     }
 
     @FXML
     void saveAction(ActionEvent event) {
-
+        //new filechooser()
+        //set current directory for file chooser
+        // if filechooser.approveoption successful save
+        //String path =getSelectedfile.getpath
+        //call saveList(path)
     }
 
 }

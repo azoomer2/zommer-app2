@@ -56,7 +56,7 @@ public class itemManager {
         //if valueIn<0 result = false;
         //if valueIn>0 && valueIn is [0-9] result = true;
 
-        
+
 
         return result;
     }
@@ -64,7 +64,28 @@ public class itemManager {
 
     void addItem(String serial, String name, String value)
     {
-
-
+        //list.new(serial,name,value);
     }
+
+    void clearList()
+    {
+        //list.clear();
+    }
+
+    void deleteItem(item index)
+    {
+        //list.delete(index)
+    }
+    void saveList(String path)
+    {
+        //new filewriter
+        //save to proper file format based on selection
+    }
+    void loadList(String path)
+    {
+        //new buffered reader
+        //read each line depending on file type
+        //overwrite current list with new list
+    }
+
 }
