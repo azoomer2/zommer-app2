@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class item {
     private String serialNum;
     private String name;
-    private BigDecimal value;
+    private String value;
 
 
 
@@ -27,11 +27,11 @@ public class item {
         this.name = name;
     }
 
-    public BigDecimal getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(BigDecimal value) {
+    public void setValue(String value) {
         this.value = value;
     }
 }

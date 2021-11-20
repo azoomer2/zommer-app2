@@ -6,18 +6,27 @@
 
 package baseline;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 import java.math.BigDecimal;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class fxmlController {
+public class fxmlController implements Initializable {
+
+    itemManager itemMan = new itemManager();
+
+    ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("None","Value","Serial Number","Name");
+
+    @FXML
+    private TableView<item> dataTable;
 
     @FXML
     private Button addButton;
@@ -38,7 +47,7 @@ public class fxmlController {
     private MenuItem loadButton;
 
     @FXML
-    private TableColumn<?, ?> nameColumn;
+    private TableColumn<item,String> nameColumn;
 
     @FXML
     private TextField nameField;
@@ -53,19 +62,24 @@ public class fxmlController {
     private TextField searchBox;
 
     @FXML
-    private TableColumn<?, ?> serialColumn;
+    private TableColumn<item,String> serialColumn;
 
     @FXML
     private TextField serialField;
 
     @FXML
-    private ChoiceBox<?> sortBox;
+    private ChoiceBox<String> sortBox;
 
     @FXML
-    private TableColumn<?, ?> valueColumn;
+    private TableColumn<item,String> valueColumn;
 
     @FXML
     private TextField valueField;
+
+
+
+
+
 
     @FXML
     void addAction(ActionEvent event) {
@@ -112,6 +126,45 @@ public class fxmlController {
         // if filechooser.approveoption successful save
         //String path =getSelectedfile.getpath
         //call saveList(path)
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        initTable();
+        initSortBox();
+    }
+
+
+
+    private void initTable()
+    {
+        serialColumn.setCellValueFactory(new PropertyValueFactory<>("serialNum"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+
+        editableCols();
+
+        dataTable.setItems(itemMan.getList());
+    }
+    private void editableCols()
+    {
+        serialColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        serialColumn.setOnEditCommit(e->
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setSerialNum(e.getNewValue()));
+
+        nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameColumn.setOnEditCommit(e->
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setName(e.getNewValue()));
+
+        valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        valueColumn.setOnEditCommit(e->
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setValue(e.getNewValue()));
+    }
+    private void initSortBox() {
+        sortBox.setItems(choiceBoxOptions);
+        sortBox.setValue("None");
+
+
     }
 
 }

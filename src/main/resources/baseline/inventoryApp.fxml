@@ -28,7 +28,7 @@
       <RowConstraints maxHeight="75.79996337890628" minHeight="10.0" prefHeight="31.20002441406251" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <TableView prefHeight="343.0" prefWidth="482.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+      <TableView fx:id="dataTable" prefHeight="343.0" prefWidth="482.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
         <columns>
           <TableColumn fx:id="serialColumn" prefWidth="154.39989626407623" text="Serial #" />
           <TableColumn fx:id="nameColumn" prefWidth="266.3999938964844" text="Name" />
