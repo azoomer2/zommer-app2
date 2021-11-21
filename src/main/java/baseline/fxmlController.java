@@ -8,6 +8,8 @@ package baseline;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,15 +17,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 
-import java.math.BigDecimal;
+import javax.swing.*;
 import java.net.URL;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import javafx.scene.input.KeyEvent;
 
 public class fxmlController implements Initializable {
 
-    itemManager itemMan = new itemManager();
+    ItemManager itemMan = new ItemManager();
 
-    ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("None","Value","Serial Number","Name");
 
     @FXML
     private TableView<item> dataTable;
@@ -67,8 +71,6 @@ public class fxmlController implements Initializable {
     @FXML
     private TextField serialField;
 
-    @FXML
-    private ChoiceBox<String> sortBox;
 
     @FXML
     private TableColumn<item,String> valueColumn;
@@ -76,7 +78,14 @@ public class fxmlController implements Initializable {
     @FXML
     private TextField valueField;
 
+    @FXML
+    private Button searchButton;
 
+
+    public static void infoBox(String infoMessage, String titleBar)
+    {
+        JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
+    }
 
 
 
@@ -84,26 +93,65 @@ public class fxmlController implements Initializable {
     @FXML
     void addAction(ActionEvent event) {
         //read in string from serial field
+        String serialIn = serialField.getText();
         //call serialValidation()
+        Boolean serialFlag = itemMan.serialValidation(serialIn);
+        if(Boolean.TRUE.equals(serialFlag))
+        {
+            fxmlController.infoBox("Incorrect Serial Format","Serial Input Error");
+        }
         //read in string from name field
+        String nameIn = nameField.getText();
         //call nameValidation()
+        Boolean nameFlag = itemMan.nameValidation(nameIn);
+        if(Boolean.TRUE.equals(nameFlag))
+        {
+            fxmlController.infoBox("Incorrect Name Format","Name Input Error");
+        }
         //read in string from value field
+        String valueIn = valueField.getText();
         //call valueValidation()
-        //BigDecimal value = new BigDecimal("valueInput")
+        try{
+            Boolean valueFlag = itemMan.valueValidation(valueIn);
+            if(Boolean.TRUE.equals(valueFlag))
+            {
+                fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+            }
+
+                double doubleVal = Double.parseDouble(valueIn);
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                String formattedValue = formatter.format(doubleVal);
+                if(Boolean.TRUE.equals(!serialFlag && !nameFlag && !valueFlag))
+                {
+                    itemMan.addItem(serialIn, nameIn, formattedValue);
+
+                    serialField.clear();
+                    nameField.clear();
+                    valueField.clear();
+                }
+        } catch (Exception e)
+        {
+            fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+        }
+
+
         //call addItem(String serial, String name, BigDecimal value)
 
     }
 
     @FXML
     void clearAction(ActionEvent event) {
-        //call clearlist();
+        //call clearList()
+        itemMan.clearList();
 
     }
 
     @FXML
     void deleteAction(ActionEvent event) {
         //item delete =getSelectedItem from table
-        //call itemman delete(Item delete)
+        item delete = dataTable.getSelectionModel().getSelectedItem();
+        //call itemMan delete(Item delete)
+        itemMan.deleteItem(delete);
     }
 
     @FXML
@@ -128,11 +176,36 @@ public class fxmlController implements Initializable {
         //call saveList(path)
     }
 
+    @FXML
+    void searchAction(ActionEvent event) {
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
+            itemMan.filterList.setPredicate(item -> {
+                if (newValue == null || newValue.isEmpty())
+                    return true;
+
+                String lowercaseFilter = newValue.toLowerCase();
+                if (item.getSerialNum().toLowerCase().indexOf(lowercaseFilter) != 1)
+                    return true;
+                else if (item.getName().toLowerCase().indexOf(lowercaseFilter) != 1)
+                    return true;
+                else
+                    return false;
+
+            });
+
+        });
+        SortedList<item> sortedList = new SortedList<>(itemMan.filterList);
+        sortedList.comparatorProperty().bind(dataTable.comparatorProperty());
+
+        dataTable.setItems(sortedList);
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initTable();
-        initSortBox();
+
     }
+
 
 
 
@@ -142,6 +215,8 @@ public class fxmlController implements Initializable {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 
+        serialColumn.setSortType(TableColumn.SortType.ASCENDING);
+
         editableCols();
 
         dataTable.setItems(itemMan.getList());
@@ -149,22 +224,61 @@ public class fxmlController implements Initializable {
     private void editableCols()
     {
         serialColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        serialColumn.setOnEditCommit(e->
-                e.getTableView().getItems().get(e.getTablePosition().getRow()).setSerialNum(e.getNewValue()));
+        serialColumn.setOnEditCommit(e->{
+            e.getTableView().getItems().get(e.getTablePosition().getRow()).setTempString(e.getNewValue());
+            String temp = e.getTableView().getItems().get(e.getTablePosition().getRow()).getTempString();
+
+            if(!itemMan.serialValidation(temp))
+            {
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setSerialNum(e.getNewValue());
+            }
+            else {
+                fxmlController.infoBox("Incorrect Serial Format","Serial Input Error");
+                dataTable.refresh();
+            }
+        });
 
         nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameColumn.setOnEditCommit(e->
-                e.getTableView().getItems().get(e.getTablePosition().getRow()).setName(e.getNewValue()));
+        nameColumn.setOnEditCommit(e-> {
+
+            e.getTableView().getItems().get(e.getTablePosition().getRow()).setTempString(e.getNewValue());
+            String temp = e.getTableView().getItems().get(e.getTablePosition().getRow()).getTempString();
+
+            if(!itemMan.nameValidation(temp))
+            {
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setName(e.getNewValue());
+            }
+            else {
+                fxmlController.infoBox("Incorrect Name Format","Name Input Error");
+                dataTable.refresh();
+            }
+        });
 
         valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-        valueColumn.setOnEditCommit(e->
-                e.getTableView().getItems().get(e.getTablePosition().getRow()).setValue(e.getNewValue()));
-    }
-    private void initSortBox() {
-        sortBox.setItems(choiceBoxOptions);
-        sortBox.setValue("None");
+        valueColumn.setOnEditCommit(e-> {
+            e.getTableView().getItems().get(e.getTablePosition().getRow()).setTempString(e.getNewValue());
+            String temp = e.getTableView().getItems().get(e.getTablePosition().getRow()).getTempString();
+
+            if(!itemMan.valueValidation(temp))
+            {
+                double doubleVal = Double.parseDouble(temp);
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                String formattedValue = formatter.format(doubleVal);
+                e.getTableView().getItems().get(e.getTablePosition().getRow()).setValue(formattedValue);
+            }
+            else {
+                fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+                dataTable.refresh();
+            }
+
+            dataTable.refresh();
+        });
+
+        dataTable.setEditable(true);
 
 
+
     }
+
 
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -44,8 +43,8 @@
       </HBox>
       <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
-            <ChoiceBox fx:id="sortBox" prefHeight="26.0" prefWidth="185.0" translateX="-80.0" />
-            <Label alignment="CENTER" text="Inventory Manager" translateX="-40.0" />
+            <Label alignment="CENTER" prefHeight="17.0" prefWidth="177.0" text="Inventory Manager" translateX="-40.0" />
+            <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchAction" text="Search" />
             <TextField fx:id="searchBox" prefHeight="26.0" prefWidth="138.0" promptText="Search" />
          </children>
       </HBox>

@@ -3,22 +3,36 @@ package baseline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 
-import java.math.BigDecimal;
+import javax.swing.*;
+import java.text.NumberFormat;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class itemManager {
+public class ItemManager {
 
     //create empty observable list
     ObservableList<item> list = FXCollections.observableArrayList();
-    //wrap observable list in filtered list
-    FilteredList<item> filteredList = new FilteredList<>(list, p->true);
+
+    FilteredList<item> filterList = new FilteredList<>(list);
+
+    public static void infoBox(String infoMessage, String titleBar)
+    {
+        JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
+    }
 
     public ObservableList<item> getList()
     {
         //return list
-        return this.filteredList;
+        return this.list;
+    }
+
+    public FilteredList<item> getFilterList()
+    {
+        return this.filterList;
     }
 
     Boolean serialValidation(String serialIn)
@@ -30,51 +44,73 @@ public class itemManager {
         Pattern serialPattern = Pattern.compile("[a-z]-[a-z0-9][a-z0-9][a-z0-9]-[a-z0-9][a-z0-9][a-z0-9]-[a-z0-9][a-z0-9][a-z0-9]",Pattern.CASE_INSENSITIVE);
         Matcher matcher = serialPattern.matcher(serialIn);
 
-        return matcher.matches();
+        return !matcher.matches();
     }
 
     Boolean nameValidation(String nameIn)
     {
-        Boolean result = false;
+        boolean result;
         //only rules for name is between 2 and 256 chars
 
         //if nameIn is empty, return false;
-        //if nameIn.length() < 2 || nameIn.length > 256
-            //return 0
-        //else return 1;
+        if(nameIn.equals(""))
+            result = true;
+
+        else result = nameIn.length() < 2 || nameIn.length() > 256;
 
         return result;
     }
 
     Boolean valueValidation(String valueIn)
     {
-        Boolean result = false;
+        boolean result = false;
 
         //if valueIn is empty, return false;
+        if(valueIn.equals(" "))
+            result = true;
+
+
+        System.out.println(valueIn);
+        double doubleVal = Double.parseDouble(valueIn);
         //Value must be >=0
-
+        if(doubleVal < 0)
+            result = true;
         //if valueIn<0 result = false;
-        //if valueIn>0 && valueIn is [0-9] result = true;
 
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        String formattedValue = formatter.format(doubleVal);
 
-
+        System.out.println(formattedValue);
         return result;
     }
 
 
     void addItem(String serial, String name, String value)
     {
-        //list.new(serial,name,value);
+        Boolean duplicate = false;
+
+        for(item i: list )
+        {
+            if(i.getSerialNum().equals(serial))
+                duplicate = true;
+        }
+
+        if(duplicate == false)
+            list.add(new item(serial,name,value));
+        else
+            fxmlController.infoBox("Duplicate Serial Numbers Are Not Allowed","Duplication Error");
+
+
     }
 
     void clearList()
     {
-        //list.clear();
+        list.clear();
     }
 
     void deleteItem(item index)
     {
-        //list.delete(index)
+        list.remove(index);
     }
     void saveList(String path)
     {

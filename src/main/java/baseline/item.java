@@ -1,15 +1,24 @@
 package baseline;
 
-import java.math.BigDecimal;
+
 
 public class item {
     private String serialNum;
     private String name;
     private String value;
+    private String temp;
+
+    public item(String serialNum, String name, String value)
+    {
+        this.serialNum = serialNum;
+        this.name = name;
+        this.value = value;
+    }
 
 
+    public String getTempString(){return temp;}
 
-
+    public void setTempString(String temp){this.temp= temp;}
 
     public String getSerialNum() {
         return serialNum;
