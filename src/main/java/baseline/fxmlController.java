@@ -6,28 +6,32 @@
 
 package baseline;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.ResourceBundle;
-import javafx.scene.input.KeyEvent;
+
 
 public class fxmlController implements Initializable {
 
     ItemManager itemMan = new ItemManager();
-
+    final String  incorrectValue = "Incorrect Value Format";
+    final String valueError = "Value Input Error";
 
     @FXML
     private TableView<item> dataTable;
@@ -55,9 +59,6 @@ public class fxmlController implements Initializable {
 
     @FXML
     private TextField nameField;
-
-    @FXML
-    private MenuItem readmeButton;
 
     @FXML
     private MenuItem saveButton;
@@ -115,7 +116,7 @@ public class fxmlController implements Initializable {
             Boolean valueFlag = itemMan.valueValidation(valueIn);
             if(Boolean.TRUE.equals(valueFlag))
             {
-                fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+                fxmlController.infoBox(incorrectValue,valueError);
             }
 
                 double doubleVal = Double.parseDouble(valueIn);
@@ -131,7 +132,7 @@ public class fxmlController implements Initializable {
                 }
         } catch (Exception e)
         {
-            fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+            fxmlController.infoBox(incorrectValue,valueError);
         }
 
 
@@ -154,50 +155,97 @@ public class fxmlController implements Initializable {
         itemMan.deleteItem(delete);
     }
 
-    @FXML
-    void fileAction(ActionEvent event) {
-
-    }
 
     @FXML
-    void loadAction(ActionEvent event) {
+    void loadAction(ActionEvent event) throws IOException {
+        JButton load = new JButton();
         //new filechooser()
+        JFileChooser fc = new JFileChooser();
         //set current directory for file chooser
-        //String path =getSelectedfile.getpath
-        //call loadFile(path)
-    }
+        fc.setCurrentDirectory(new java.io.File(""));
+        fc.setDialogTitle("Save List");
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("TAB SEPARATED VALUES (TSV)", "txt"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("HTML", "html"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("JSON", "json"));
 
-    @FXML
-    void saveAction(ActionEvent event) {
-        //new filechooser()
-        //set current directory for file chooser
         // if filechooser.approveoption successful save
+        if(fc.showOpenDialog(load)==JFileChooser.APPROVE_OPTION)
+        {
+            System.out.println("Successfully Loaded");
+        }
         //String path =getSelectedfile.getpath
+        String path = fc.getSelectedFile().getPath();
         //call saveList(path)
+        if(path.endsWith("txt")) {
+            itemMan.loadListTSV(path);
+        }
+        else if(path.endsWith("html")) {
+            itemMan.loadListHtml(path);
+        }
+        else if(path.endsWith("json")) {
+            itemMan.loadListJson(path);
+        }
+        else
+            fxmlController.infoBox("Incorrect File Type","Save Error");
+
+
+    }
+
+    @FXML
+    void saveAction(ActionEvent event) throws IOException {
+        JButton save = new JButton();
+        //new filechooser()
+        JFileChooser fc = new JFileChooser();
+        //set current directory for file chooser
+        fc.setCurrentDirectory(new java.io.File(" "));
+        fc.setDialogTitle("Save List");
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("TAB SEPARATED VALUES (TSV)", "txt"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("HTML", "html"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("JSON", "json"));
+
+        // if filechooser.approveoption successful save
+        if(fc.showSaveDialog(save)==JFileChooser.APPROVE_OPTION)
+        {
+            System.out.println("Successfully Saved");
+        }
+        //String path =getSelectedfile.getpath
+        String path = fc.getSelectedFile().getPath();
+        //call saveList(path)
+        if(path.endsWith("txt")) {
+            itemMan.saveListTSV(path);
+        }
+        else if(path.endsWith("html")) {
+            itemMan.saveListHtml(path);
+        }
+        else if(path.endsWith("json")) {
+            itemMan.saveListJson(path);
+        }
+        else
+            fxmlController.infoBox("Incorrect File Type","Save Error");
+
+
     }
 
     @FXML
     void searchAction(ActionEvent event) {
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            itemMan.filterList.setPredicate(item -> {
-                if (newValue == null || newValue.isEmpty())
-                    return true;
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> itemMan.filterList.setPredicate(item -> {
+            if (newValue == null || newValue.isEmpty())
+                return true;
 
-                String lowercaseFilter = newValue.toLowerCase();
-                if (item.getSerialNum().toLowerCase().indexOf(lowercaseFilter) != 1)
-                    return true;
-                else if (item.getName().toLowerCase().indexOf(lowercaseFilter) != 1)
-                    return true;
-                else
-                    return false;
-
-            });
-
-        });
+            String lowercaseFilter = newValue.toLowerCase();
+            if (item.getSerialNum().toLowerCase().indexOf(lowercaseFilter) > -1)
+                return true;
+            else if(item.getName().toLowerCase().indexOf(lowercaseFilter) > -1)
+                return true;
+            else
+                return false;
+        }));
         SortedList<item> sortedList = new SortedList<>(itemMan.filterList);
         sortedList.comparatorProperty().bind(dataTable.comparatorProperty());
 
-        dataTable.setItems(sortedList);
+        dataTable.setItems(itemMan.filterList);
     }
 
     @Override
@@ -267,7 +315,7 @@ public class fxmlController implements Initializable {
                 e.getTableView().getItems().get(e.getTablePosition().getRow()).setValue(formattedValue);
             }
             else {
-                fxmlController.infoBox("Incorrect Value Format","Value Input Error");
+                fxmlController.infoBox(incorrectValue,valueError);
                 dataTable.refresh();
             }
 
@@ -275,9 +323,6 @@ public class fxmlController implements Initializable {
         });
 
         dataTable.setEditable(true);
-
-
-
     }
 
 

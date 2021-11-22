@@ -1,11 +1,51 @@
 @startuml
-'https://plantuml.com/sequence-diagram
+ class InventoryManagementApplication{
+    void start();
+    void main();
+ }
 
-autonumber
+ class item{
+    -String serialNum
+    -String name
+    -String value
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+    +item(String serial, String name, String value);
+    +getTempString();
+    +setTempString(String temp);
+    +getSerialNum();
+    +setSerialNum(String serialNum);
+    +getName();
+    +setName(String name);
+    +getValue();
+    +setValue(String value);
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+
+ }
+
+ class ItemManager{
+    +Static Void infoBox();
+    +ObservableList getList();
+    +FilteredList getFilterList();
+
+    +Boolean serialValidation(String serial)
+    +Boolean nameValidation(String name);
+    +Boolean valueValidation(String value);
+
+    +void addItem();
+    +void removeItem();
+    +void clearList();
+
+    +void saveListTSV();
+    +void saveListHTML();
+    +void saveListJSON();
+
+    +void loadListTSV();
+    +void loadListHTML();
+    +void loadListJSON();
+
+ }
+
+InventoryManagementApplication --> ItemManager
+ItemManager --> item
+
 @enduml

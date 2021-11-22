@@ -3,12 +3,15 @@ package baseline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 
 import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,14 +66,10 @@ public class ItemManager {
 
     Boolean valueValidation(String valueIn)
     {
-        boolean result = false;
+        boolean result = valueIn.equals(" ");
 
         //if valueIn is empty, return false;
-        if(valueIn.equals(" "))
-            result = true;
 
-
-        System.out.println(valueIn);
         double doubleVal = Double.parseDouble(valueIn);
         //Value must be >=0
         if(doubleVal < 0)
@@ -80,22 +79,23 @@ public class ItemManager {
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         String formattedValue = formatter.format(doubleVal);
 
-        System.out.println(formattedValue);
         return result;
     }
 
 
     void addItem(String serial, String name, String value)
     {
-        Boolean duplicate = false;
+        boolean duplicate = false;
 
         for(item i: list )
         {
-            if(i.getSerialNum().equals(serial))
+            if (i.getSerialNum().equals(serial)) {
                 duplicate = true;
+                break;
+            }
         }
 
-        if(duplicate == false)
+        if(!duplicate)
             list.add(new item(serial,name,value));
         else
             fxmlController.infoBox("Duplicate Serial Numbers Are Not Allowed","Duplication Error");
@@ -112,16 +112,68 @@ public class ItemManager {
     {
         list.remove(index);
     }
-    void saveList(String path)
+    void saveListTSV(String path) throws IOException {
+        //new filewriter
+        FileWriter writer;
+        writer = new FileWriter(path);
+        //save to proper file format based on selection
+        FileWriter finalWriter = writer;
+
+        list.forEach(item->{
+            try{
+                finalWriter.write(item.getSerialNum()+"\t");
+                finalWriter.write(item.getName()+"\t");
+                finalWriter.write(item.getValue()+"\t");
+                finalWriter.write("\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+           finally {
+                try {
+                    finalWriter.close();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+    void saveListHtml(String path) {
+        //Future Implementation
+
+    }
+    void saveListJson(String path)
     {
         //new filewriter
         //save to proper file format based on selection
     }
-    void loadList(String path)
-    {
-        //new buffered reader
-        //read each line depending on file type
-        //overwrite current list with new list
+
+
+
+    public void loadListTSV(String path) throws IOException {
+        clearList();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split("\n");
+
+                for (String str : values) {
+                    ArrayList<String> tempList = new ArrayList<>(Arrays.asList(str.split("\t")));
+                    addItem(tempList.get(0), tempList.get(1), tempList.get(2));
+                }
+            }
+        }catch (IllegalStateException e)
+        {
+            e.printStackTrace();
+        }
     }
 
+    public void loadListHtml(String path) {
+        //Future Implementation
+    }
+
+    public void loadListJson(String path) {
+        //Future Implementation
+    }
 }
