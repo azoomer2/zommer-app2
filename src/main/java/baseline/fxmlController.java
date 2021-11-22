@@ -87,10 +87,6 @@ public class fxmlController implements Initializable {
     {
         JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
     }
-
-
-
-
     @FXML
     void addAction(ActionEvent event) {
         //read in string from serial field
